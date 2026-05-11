@@ -441,24 +441,35 @@ async def fetch_jsonplaceholder(
     if resource_id is not None:
         url += f"/{resource_id}"
 
+    import time
+    t0 = time.monotonic()
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(url)
+            http_cost = round((time.monotonic() - t0) * 1000)
             resp.raise_for_status()
             data = resp.json()
+            total_cost = round((time.monotonic() - t0) * 1000)
 
         return {
             "url": url,
             "status_code": resp.status_code,
+            "debug": {
+                "http_cost_ms": http_cost,
+                "total_cost_ms": total_cost,
+                "response_content_length": len(resp.content),
+            },
             "data": data,
         }
     except httpx.HTTPStatusError as e:
+        http_cost = round((time.monotonic() - t0) * 1000)
         return {
-            "content": [TextContent(type="text", text=f"HTTP错误: {e.response.status_code} - {e.response.text}")],
+            "content": [TextContent(type="text", text=f"HTTP错误: {e.response.status_code} - {e.response.text}, http_cost_ms={http_cost}")],
             "isError": True,
         }
     except httpx.RequestError as e:
+        http_cost = round((time.monotonic() - t0) * 1000)
         return {
-            "content": [TextContent(type="text", text=f"请求失败: {str(e)}")],
+            "content": [TextContent(type="text", text=f"请求失败: {str(e)}, http_cost_ms={http_cost}")],
             "isError": True,
         }
