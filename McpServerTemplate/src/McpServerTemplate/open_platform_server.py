@@ -450,7 +450,7 @@ async def fetch_jsonplaceholder(
     import time
     t0 = time.monotonic()
     try:
-        with httpx.Client(timeout=10.0) as client:
+        with httpx.Client(timeout=15.0) as client:
             resp = client.get(url)
             http_cost = round((time.monotonic() - t0) * 1000)
             resp.raise_for_status()
