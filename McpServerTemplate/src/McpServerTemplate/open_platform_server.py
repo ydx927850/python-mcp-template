@@ -450,8 +450,8 @@ async def fetch_jsonplaceholder(
     import time
     t0 = time.monotonic()
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(url)
+        with httpx.Client(timeout=10.0) as client:
+            resp = client.get(url)
             http_cost = round((time.monotonic() - t0) * 1000)
             resp.raise_for_status()
             data = resp.json()
