@@ -459,7 +459,7 @@ async def fetch_jsonplaceholder(
 
         # 列表请求只返回前5条，减少响应体积
         if rid is None and isinstance(data, list):
-            data = data[:50]
+            data = data[:20]
 
         return {
             "content": [TextContent(type="text", text=json.dumps({
