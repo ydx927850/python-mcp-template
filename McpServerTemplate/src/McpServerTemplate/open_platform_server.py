@@ -416,7 +416,7 @@ async def get_request_headers(ctx: Context) -> Dict[str, Any]:
 @server.tool()
 async def fetch_jsonplaceholder(
     resource: str = "posts",
-    resource_id: Optional[int] = None,
+    resource_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """调用JSONPlaceholder公共API获取模拟数据
 
@@ -427,6 +427,12 @@ async def fetch_jsonplaceholder(
     Returns:
         API返回的JSON数据
     """
+    # 平台可能传空字符串，需要手动处理
+    if resource_id is not None and resource_id.strip() != "":
+        rid = int(resource_id)
+    else:
+        rid = None
+
     allowed_resources = {"posts", "comments", "albums", "photos", "todos", "users"}
     if resource not in allowed_resources:
         return {
@@ -438,8 +444,8 @@ async def fetch_jsonplaceholder(
         }
 
     url = f"https://jsonplaceholder.typicode.com/{resource}"
-    if resource_id is not None:
-        url += f"/{resource_id}"
+    if rid is not None:
+        url += f"/{rid}"
 
     import time
     t0 = time.monotonic()
