@@ -452,14 +452,16 @@ async def fetch_jsonplaceholder(
             total_cost = round((time.monotonic() - t0) * 1000)
 
         return {
-            "url": url,
-            "status_code": resp.status_code,
-            "debug": {
-                "http_cost_ms": http_cost,
-                "total_cost_ms": total_cost,
-                "response_content_length": len(resp.content),
-            },
-            "data": data,
+            "content": [TextContent(type="text", text=json.dumps({
+                "url": url,
+                "status_code": resp.status_code,
+                "debug": {
+                    "http_cost_ms": http_cost,
+                    "total_cost_ms": total_cost,
+                    "response_content_length": len(resp.content),
+                },
+                "data": data,
+            }, ensure_ascii=False))],
         }
     except httpx.HTTPStatusError as e:
         http_cost = round((time.monotonic() - t0) * 1000)
