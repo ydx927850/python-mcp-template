@@ -450,12 +450,16 @@ async def fetch_jsonplaceholder(
     import time
     t0 = time.monotonic()
     try:
-        with httpx.Client(timeout=30.0) as client:
-            resp = client.get(url)
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.get(url)
             http_cost = round((time.monotonic() - t0) * 1000)
             resp.raise_for_status()
             data = resp.json()
             total_cost = round((time.monotonic() - t0) * 1000)
+
+        # 列表请求只返回前5条，减少响应体积
+        if rid is None and isinstance(data, list):
+            data = data[:5]
 
         return {
             "content": [TextContent(type="text", text=json.dumps({
