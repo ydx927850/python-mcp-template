@@ -447,41 +447,26 @@ async def fetch_jsonplaceholder(
     if rid is not None:
         url += f"/{rid}"
 
-    import time
-    t0 = time.monotonic()
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.get(url)
-            http_cost = round((time.monotonic() - t0) * 1000)
             resp.raise_for_status()
             data = resp.json()
-            total_cost = round((time.monotonic() - t0) * 1000)
-
-        # 列表请求只返回前5条，减少响应体积
-        if rid is None and isinstance(data, list):
-            data = data[:50]
 
         return {
             "content": [TextContent(type="text", text=json.dumps({
                 "url": url,
                 "status_code": resp.status_code,
-                "debug": {
-                    "http_cost_ms": http_cost,
-                    "total_cost_ms": total_cost,
-                    "response_content_length": len(resp.content),
-                },
                 "data": data,
             }, ensure_ascii=False))],
         }
     except httpx.HTTPStatusError as e:
-        http_cost = round((time.monotonic() - t0) * 1000)
         return {
-            "content": [TextContent(type="text", text=f"HTTP错误: {e.response.status_code} - {e.response.text}, http_cost_ms={http_cost}")],
+            "content": [TextContent(type="text", text=f"HTTP错误: {e.response.status_code} - {e.response.text}")],
             "isError": True,
         }
     except httpx.RequestError as e:
-        http_cost = round((time.monotonic() - t0) * 1000)
         return {
-            "content": [TextContent(type="text", text=f"请求失败: {str(e)}, http_cost_ms={http_cost}")],
+            "content": [TextContent(type="text", text=f"请求失败: {str(e)}")],
             "isError": True,
         }
